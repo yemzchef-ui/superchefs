@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChartBar, Filter, Download } from "lucide-react";
+import { Download } from "lucide-react";
 import dayjs from "dayjs";
 import { DateRange } from "react-day-picker";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +16,7 @@ import { DatePickerWithRange } from "@/components/accounts/DateRangePicker";
 import { Button } from "@/components/ui/button";
 import { AccountsMetricsCards } from "@/components/accounts/AccountsMetricsCards";
 import { AccountsChart } from "@/components/accounts/AccountsChart";
-import { Sale } from "@/types/sales";
+// import { Sale } from "@/types/sales";
 import { naira } from "@/lib/utils";
 import useAccountReportGenerator from "@/hooks/use-generate-report";
 import { useUserBranch } from "@/hooks/user-branch";
@@ -88,6 +88,16 @@ const Accounts = () => {
         query = query
           .gte("created_at", dateRange.from.toISOString())
           .lte("created_at", dateRange.to.toISOString());
+      } else if (dateRange?.from && !dateRange?.to) {
+        // Single date selected
+        const fromDate = new Date(dateRange.from);
+        const startOfDay = new Date(
+          fromDate.setHours(0, 0, 0, 0)
+        ).toISOString();
+        const endOfDay = new Date(
+          fromDate.setHours(23, 59, 59, 999)
+        ).toISOString();
+        query = query.gte("created_at", startOfDay).lte("created_at", endOfDay);
       }
 
       if (selectedBranch !== "all") {
@@ -103,7 +113,8 @@ const Accounts = () => {
         return data.map((sale) => ({
           ...sale,
           items: sale.items.filter(
-            (item: { product: { id: string; }; }) => item.product.id === selectedProduct
+            (item: { product: { id: string } }) =>
+              item.product.id === selectedProduct
           ),
         }));
       }
@@ -123,6 +134,15 @@ const Accounts = () => {
         query = query
           .gte("created_at", dateRange.from.toISOString())
           .lte("created_at", dateRange.to.toISOString());
+      } else if (dateRange?.from && !dateRange?.to) {
+        const fromDate = new Date(dateRange.from);
+        const startOfDay = new Date(
+          fromDate.setHours(0, 0, 0, 0)
+        ).toISOString();
+        const endOfDay = new Date(
+          fromDate.setHours(23, 59, 59, 999)
+        ).toISOString();
+        query = query.gte("created_at", startOfDay).lte("created_at", endOfDay);
       }
       if (selectedBranch !== "all") {
         query = query.eq("branch_id", selectedBranch);
@@ -144,6 +164,15 @@ const Accounts = () => {
         query = query
           .gte("created_at", dateRange.from.toISOString())
           .lte("created_at", dateRange.to.toISOString());
+      } else if (dateRange?.from && !dateRange?.to) {
+        const fromDate = new Date(dateRange.from);
+        const startOfDay = new Date(
+          fromDate.setHours(0, 0, 0, 0)
+        ).toISOString();
+        const endOfDay = new Date(
+          fromDate.setHours(23, 59, 59, 999)
+        ).toISOString();
+        query = query.gte("created_at", startOfDay).lte("created_at", endOfDay);
       }
       if (selectedBranch !== "all") {
         query = query.eq("branch_id", selectedBranch);
@@ -165,6 +194,15 @@ const Accounts = () => {
         query = query
           .gte("created_at", dateRange.from.toISOString())
           .lte("created_at", dateRange.to.toISOString());
+      } else if (dateRange?.from && !dateRange?.to) {
+        const fromDate = new Date(dateRange.from);
+        const startOfDay = new Date(
+          fromDate.setHours(0, 0, 0, 0)
+        ).toISOString();
+        const endOfDay = new Date(
+          fromDate.setHours(23, 59, 59, 999)
+        ).toISOString();
+        query = query.gte("created_at", startOfDay).lte("created_at", endOfDay);
       }
       if (selectedBranch !== "all") {
         query = query.eq("branch_id", selectedBranch);
@@ -186,6 +224,15 @@ const Accounts = () => {
         query = query
           .gte("created_at", dateRange.from.toISOString())
           .lte("created_at", dateRange.to.toISOString());
+      } else if (dateRange?.from && !dateRange?.to) {
+        const fromDate = new Date(dateRange.from);
+        const startOfDay = new Date(
+          fromDate.setHours(0, 0, 0, 0)
+        ).toISOString();
+        const endOfDay = new Date(
+          fromDate.setHours(23, 59, 59, 999)
+        ).toISOString();
+        query = query.gte("created_at", startOfDay).lte("created_at", endOfDay);
       }
       if (selectedBranch !== "all") {
         query = query.eq("branch_id", selectedBranch);
@@ -207,6 +254,15 @@ const Accounts = () => {
         query = query
           .gte("created_at", dateRange.from.toISOString())
           .lte("created_at", dateRange.to.toISOString());
+      } else if (dateRange?.from && !dateRange?.to) {
+        const fromDate = new Date(dateRange.from);
+        const startOfDay = new Date(
+          fromDate.setHours(0, 0, 0, 0)
+        ).toISOString();
+        const endOfDay = new Date(
+          fromDate.setHours(23, 59, 59, 999)
+        ).toISOString();
+        query = query.gte("created_at", startOfDay).lte("created_at", endOfDay);
       }
       if (selectedBranch !== "all") {
         query = query.eq("branch_id", selectedBranch);
@@ -225,22 +281,27 @@ const Accounts = () => {
 
     // Revenue and cost from sales
     (salesData || []).forEach((sale) => {
-      (sale.items || []).forEach((item: { subtotal: any; total_cost: any; quantity: any; }) => {
-        totalRevenue += Number(item.subtotal) || 0;
-        totalCost += Number(item.total_cost) || 0; // Use total_cost directly
-        totalItems += Number(item.quantity) || 0;
-      });
+      (sale.items || []).forEach(
+        (item: { subtotal: any; total_cost: any; quantity: any }) => {
+          totalRevenue += Number(item.subtotal) || 0;
+          totalCost += Number(item.total_cost) || 0; // Use total_cost directly
+          totalItems += Number(item.quantity) || 0;
+        }
+      );
     });
 
     // Add costs from other tables
-    const sumCost = (arr: { cost: any; created_at: any; branch_id: any; }[]) =>
-      (arr || []).reduce((acc: number, curr: { cost: any; }) => acc + (Number(curr.cost) || 0), 0);
+    const sumCost = (arr: { cost: any; created_at: any; branch_id: any }[]) =>
+      (arr || []).reduce(
+        (acc: number, curr: { cost: any }) => acc + (Number(curr.cost) || 0),
+        0
+      );
 
-    totalCost += sumCost(complimentaryCosts);
-    totalCost += sumCost(damageCosts);
-    totalCost += sumCost(imprestCosts);
-    totalCost += sumCost(materialDamageCosts);
-    totalCost += sumCost(indirectMaterialCosts);
+    totalCost += sumCost(complimentaryCosts || []);
+    totalCost += sumCost(damageCosts || []);
+    totalCost += sumCost(imprestCosts || []);
+    totalCost += sumCost(materialDamageCosts || []);
+    totalCost += sumCost(indirectMaterialCosts || []);
 
     const profit = totalRevenue - totalCost;
     const costToRevenueRatio =
@@ -253,7 +314,14 @@ const Accounts = () => {
       costToRevenueRatio,
       totalItems,
     };
-  }, [salesData, complimentaryCosts, damageCosts, imprestCosts, materialDamageCosts, indirectMaterialCosts]);
+  }, [
+    salesData,
+    complimentaryCosts,
+    damageCosts,
+    imprestCosts,
+    materialDamageCosts,
+    indirectMaterialCosts,
+  ]);
 
   const accountData = useMemo(() => {
     return {
@@ -322,16 +390,16 @@ const Accounts = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const {
-        data: {
-          user: { user_metadata },
-        },
+        data: { user },
         error,
       } = await supabase.auth.getUser();
       if (error) {
         console.error("Error fetching user:", error);
         return;
       }
-      setUser(user_metadata);
+      if (user && user.user_metadata) {
+        setUser(user.user_metadata);
+      }
     };
 
     fetchUser();
@@ -396,26 +464,26 @@ const Accounts = () => {
             <CardTitle>Product Performance</CardTitle>
           </CardHeader>
           <CardContent>
-            <ProductPerformance salesData={salesData} />
+            <ProductPerformance salesData={salesData || []} />
           </CardContent>
         </Card>
       </div>
       <Card>
-  <CardHeader>
-    <CardTitle>Branch Performance</CardTitle>
-  </CardHeader>
-  <CardContent>
-    <BranchPerformance
-      salesData={salesData || []}
-      branches={branches || []}
-      complimentaryCosts={complimentaryCosts}
-      damageCosts={damageCosts}
-      imprestCosts={imprestCosts}
-      materialDamageCosts={materialDamageCosts}
-      indirectMaterialCosts={indirectMaterialCosts}
-    />
-  </CardContent>
-</Card>
+        <CardHeader>
+          <CardTitle>Branch Performance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <BranchPerformance
+            salesData={salesData || []}
+            branches={branches || []}
+            complimentaryCosts={complimentaryCosts}
+            damageCosts={damageCosts}
+            imprestCosts={imprestCosts}
+            materialDamageCosts={materialDamageCosts}
+            indirectMaterialCosts={indirectMaterialCosts}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };

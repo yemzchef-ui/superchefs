@@ -222,7 +222,7 @@ export default function UpdateQuantityDialog({
         return;
       }
     }
-  }
+  } 
 
   toast({
     title: "Success",
