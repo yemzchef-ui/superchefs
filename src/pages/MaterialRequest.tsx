@@ -350,7 +350,7 @@ const MaterialRequest = () => {
             <MaterialRequestDialog
               onOpenChange={setIsAddDialogOpen}
               refetch={refetchMaterialRequests}
-              requests={data?.material_requests?.map((x) => x?.material_id)}
+              requests={(data?.material_requests ?? []).map((x) => x?.material_id)}
             />
           </Dialog>
           <Dialog
@@ -417,7 +417,7 @@ const MaterialRequest = () => {
                   }
                   onChange={() =>
                     handleSelectAll(
-                      data?.material_requests,
+                      data?.material_requests ?? [],
                       // Allow selection of "bad" status for re-approval
                       (req) => !["supplied", "pending"].includes(req.status)
                     )

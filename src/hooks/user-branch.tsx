@@ -18,7 +18,7 @@ export const useUserBranch = () => {
         `
         )
         .eq("user_id", session.user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching user branch:", error);

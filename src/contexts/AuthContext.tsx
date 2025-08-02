@@ -8,7 +8,7 @@ import { UserRole } from "@/types/users";
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [userRoles, setUserRoles] = useState<UserRole>(null);
+  const [userRoles, setUserRoles] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               .from("profiles")
               .select("role")
               .eq("user_id", session.user.id)
-              .single()
+              .maybeSingle()
               .then(({ data: userData, error }) => {
                 if (error) {
                   console.error("User data fetch error:", error);
@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           } else {
             console.log("No session found");
             if (isMounted) setUser(null);
+            return Promise.resolve();
           }
         })
         .catch((error) => {
@@ -63,7 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .from("profiles")
           .select("role")
           .eq("user_id", session.user.id)
-          .single()
+          .maybeSingle()
           .then(({ data: userData, error }) => {
             if (!error && userData && isMounted) {
               setUserRoles(userData?.role);

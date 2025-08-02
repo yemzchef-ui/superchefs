@@ -79,10 +79,15 @@ const Imprest = () => {
         `,
           { count: "exact" }
         )
+        .eq("branch_id", userBranch?.data?.id)
         .order("created_at", { ascending: false })
         .range(from, to);
 
-      if (error) throw error;
+      if (error) {
+    // return empty data and log error
+    console.error("Supabase error:", error);
+    return { imprests: [], hasNextPage: false };
+  }
       return {
         imprests: data as unknown as Imprest[],
         hasNextPage: count ? to + 1 < count : false,
@@ -213,6 +218,7 @@ const Imprest = () => {
   return (
     <div className="space-y-6 p-3 bg-white rounded-lg shadow-md w-full mx-auto margin-100">
       <div className="flex justify-between items-center">
+        <div>
         <h2 className="text-3xl font-bold tracking-tight">Imprests</h2>
         <h2 className="text-2xl font-bold tracking-tight">
           ₦
@@ -224,6 +230,8 @@ const Imprest = () => {
             )
             .toLocaleString()}
         </h2>
+        </div>
+
         <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0 sm:space-x-2">
           {/* Time period select */}
           <select
@@ -310,7 +318,7 @@ const Imprest = () => {
                   }
                   onChange={() =>
                     handleSelectAll(
-                      data?.imprests,
+                      data?.imprests ?? [],
                       (imprest) =>
                         !["supplied", "pending"].includes(imprest.status)
                     )
