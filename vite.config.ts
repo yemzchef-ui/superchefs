@@ -17,43 +17,35 @@ export default defineConfig({
 
       // ✅ Remove skipWaiting: true so it doesn't auto-activate
       workbox: {
-  clientsClaim: true,
-  cleanupOutdatedCaches: true,
-  maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
-
-  // ✅ Ensures client-side routing works without breaking API requests
-  navigateFallback: "/index.html",
-  navigateFallbackDenylist: [
-    new RegExp("^/_"),
-    new RegExp("^/api/"),
-    new RegExp("^https://ckkvnnphgceesuftupyj\\.supabase\\.co/"),
-  ],
-
-  runtimeCaching: [
-    {
-      // ✅ Supabase API requests should NOT be cached aggressively
-      urlPattern: /^https:\/\/ckkvnnphgceesuftupyj\.supabase\.co\//,
-      handler: "NetworkOnly", // Use NetworkOnly to always fetch fresh data
-      options: {
-        cacheName: "supabase-api",
-        networkTimeoutSeconds: 10,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/ckkvnnphgceesuftupyj\.supabase\.co\//,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "supabase-api",
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+              },
+            },
+          },
+          {
+            urlPattern:
+              /\.(?:js|css|html|png|jpg|jpeg|svg|gif|woff2?|eot|ttf|otf)$/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "static-assets",
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+              },
+            },
+          },
+        ],
       },
-    },
-    {
-      // ✅ Cache static assets only
-      urlPattern: /\.(?:js|css|png|jpg|jpeg|svg|gif|woff2?|eot|ttf|otf)$/i,
-      handler: "CacheFirst",
-      options: {
-        cacheName: "static-assets",
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-        },
-      },
-    },
-  ],
-},
-
 
       // Assets to cache
       includeAssets: [
