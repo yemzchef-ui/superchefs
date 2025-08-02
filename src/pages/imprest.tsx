@@ -63,6 +63,7 @@ const Imprest = () => {
     data,
     refetch: refetchImprests,
     isLoading,
+    error,
   } = useQuery({
     queryKey: ["imprest_requests", page],
     queryFn: async () => {
@@ -84,10 +85,10 @@ const Imprest = () => {
         .range(from, to);
 
       if (error) {
-    // return empty data and log error
-    console.error("Supabase error:", error);
-    return { imprests: [], hasNextPage: false };
-  }
+        // return empty data and log error
+        console.error("Supabase error:", error);
+        return { imprests: [], hasNextPage: false };
+      }
       return {
         imprests: data as unknown as Imprest[],
         hasNextPage: count ? to + 1 < count : false,
@@ -219,17 +220,18 @@ const Imprest = () => {
     <div className="space-y-6 p-3 bg-white rounded-lg shadow-md w-full mx-auto margin-100">
       <div className="flex justify-between items-center">
         <div>
-        <h2 className="text-3xl font-bold tracking-tight">Imprests</h2>
-        <h2 className="text-2xl font-bold tracking-tight">
-          ₦
-          {filteredImprests
-            .reduce(
-              (acc, imprest) =>
-          acc + calculateTotalCost(imprest.quantity, imprest.unit_price),
-              0
-            )
-            .toLocaleString()}
-        </h2>
+          <h2 className="text-3xl font-bold tracking-tight">Imprests</h2>
+          <h2 className="text-2xl font-bold tracking-tight">
+            ₦
+            {filteredImprests
+              .reduce(
+                (acc, imprest) =>
+                  acc +
+                  calculateTotalCost(imprest.quantity, imprest.unit_price),
+                0
+              )
+              .toLocaleString()}
+          </h2>
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0 sm:space-x-2">
@@ -340,7 +342,27 @@ const Imprest = () => {
               <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
-          {filteredImprests.length && !isLoading ? (
+          {/* Improved conditional rendering */}
+          {isLoading ? (
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={10} className="text-center">
+                  <div className="flex justify-center items-center">
+                    Loading... Please wait
+                    <div className="animate-spin rounded-full text-green-500 h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          ) : error ? (
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={10} className="text-center text-red-500">
+                  Error loading imprests. Please try again.
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          ) : filteredImprests.length > 0 ? (
             <TableBody>
               {filteredImprests.map((imprest) => (
                 <TableRow key={imprest.id}>
@@ -384,21 +406,11 @@ const Imprest = () => {
                 </TableRow>
               ))}
             </TableBody>
-          ) : !data?.imprests?.length && !isLoading ? (
-            <TableBody>
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  No recent imprests
-                </TableCell>
-              </TableRow>
-            </TableBody>
           ) : (
             <TableBody>
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                 <div className="flex justify-center items-center">Loading... Please wait
-      <div className="animate-spin rounded-full text-green-500 h-8 w-8 border-t-2 border-b-2  border-green-500"></div>
-    </div>
+                <TableCell colSpan={10} className="text-center">
+                  No recent imprests
                 </TableCell>
               </TableRow>
             </TableBody>
