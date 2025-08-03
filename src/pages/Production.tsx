@@ -320,12 +320,12 @@ const Production = () => {
       return;
     }
 
-    const insufficient = checkSufficiency(recipe);
-    if (insufficient.length > 0) {
-      setInsufficientItems(insufficient);
-      setShowInsufficientDialog(true);
-      return;
-    }
+    // const insufficient = checkSufficiency(recipe);
+    // if (insufficient.length > 0) {
+    //   setInsufficientItems(insufficient);
+    //   setShowInsufficientDialog(true);
+    //   return;
+    // }
 
     produceMutation.mutate(recipe);
     handleClose();

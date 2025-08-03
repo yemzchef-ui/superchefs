@@ -152,48 +152,51 @@ export default function UpdateQuantityDialog({
       (field) =>
         !field.material_id ||
         field.quantity === "" ||
-        field.quantity < 0
+        Number(field.quantity) <= 0
     )
   ) {
     toast({
       title: "Error",
-      description: "Please fill all fields correctly",
+      description: "Please fill all fields correctly with positive values",
       variant: "destructive",
     });
     return;
   }
 
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split("T")[0]; // e.g., "2025-04-05"
+
   for (const field of materialFields) {
     const { material_id, quantity } = field;
 
-    // Fetch current quantity from inventory
-    const { data, error: fetchError } = await supabase
+    // Step 1: Query for any record where branch_id, material_id, and date (from updated_at) = today
+    const { data: existingRecords, error: fetchError } = await supabase
       .from("inventory")
-      .select("quantity")
+      .select("id, quantity, updated_at")
       .eq("branch_id", selectedBranch)
       .eq("material_id", material_id)
-      .single();
+      .gte("updated_at", `${today}T00:00:00Z`)
+      .lt("updated_at", `${today}T23:59:59Z`);
 
-    if (fetchError && fetchError.code !== "PGRST116") {
-      // PGRST116 means "No rows found"
+    if (fetchError) {
       toast({
-        title: "Error fetching current quantity",
+        title: "Error checking today's record",
         description: fetchError.message,
         variant: "destructive",
       });
       return;
     }
 
-    const currentQuantity = data?.quantity || 0;
+    const existingRecord = existingRecords[0];
+    const currentQuantity = existingRecord?.quantity || 0;
     const newQuantity = currentQuantity + Number(quantity);
 
-    if (data) {
-      // Row exists → update it
+    if (existingRecord) {
+      // Update the existing record for today
       const { error: updateError } = await supabase
         .from("inventory")
         .update({ quantity: newQuantity })
-        .eq("branch_id", selectedBranch)
-        .eq("material_id", material_id);
+        .eq("id", existingRecord.id); // safest: update by ID
 
       if (updateError) {
         toast({
@@ -204,25 +207,26 @@ export default function UpdateQuantityDialog({
         return;
       }
     } else {
-      // Row does NOT exist → insert new one
+      // Insert a new record (updated_at will be set by Supabase)
       const { error: insertError } = await supabase
         .from("inventory")
         .insert({
           branch_id: selectedBranch,
           material_id,
           quantity: newQuantity,
+          // updated_at will be auto-generated
         });
 
       if (insertError) {
         toast({
-          title: "Error inserting new inventory",
+          title: "Error inserting inventory",
           description: insertError.message,
           variant: "destructive",
         });
         return;
       }
     }
-  } 
+  }
 
   toast({
     title: "Success",

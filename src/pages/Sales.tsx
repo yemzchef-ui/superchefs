@@ -270,7 +270,7 @@ queryClient.invalidateQueries({
               <SaleForm
                 products={products}
                 onSubmit={handleCreateSale}
-                branchId={branchToUse}
+                branchId={branchToUse ?? ""}
                 isLoading={loading}
               />
             )}
