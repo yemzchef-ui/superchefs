@@ -152,25 +152,25 @@ export const SaleForm = ({ products, onSubmit, isLoading, branchId }: SaleFormPr
       return;
     }
 
-    // const insufficient: Array<{ name: string; needed: number; available: number }> = [];
+    const insufficient: Array<{ name: string; needed: number; available: number }> = [];
 
-    // values.items.forEach((item) => {
-    //   const available = productQtyMap[item.product_id] ?? 0;
-    //   if (item.quantity > available) {
-    //     const productName = products.find((p) => p.id === item.product_id)?.name || "Unknown Product";
-    //     insufficient.push({
-    //       name: productName,
-    //       needed: item.quantity,
-    //       available,
-    //     });
-    //   }
-    // });
+    values.items.forEach((item) => {
+      const available = productQtyMap[item.product_id] ?? 0;
+      if (item.quantity > available) {
+        const productName = products.find((p) => p.id === item.product_id)?.name || "Unknown Product";
+        insufficient.push({
+          name: productName,
+          needed: item.quantity,
+          available,
+        });
+      }
+    });
 
-    // if (insufficient.length > 0) {
-    //   setInsufficientItems(insufficient);
-    //   setShowInsufficientDialog(true);
-    //   return;
-    // }
+    if (insufficient.length > 0) {
+      setInsufficientItems(insufficient);
+      setShowInsufficientDialog(true);
+      return;
+    }
 
     setSubmitting(true);
     try {

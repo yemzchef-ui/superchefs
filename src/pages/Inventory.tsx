@@ -374,7 +374,7 @@ const Inventory = () => {
 
         
 
-        <div className="flex flex-row space-x-2 sm:flex-col sm:space-x-0 sm:space-y-2 justify-self-end">
+        <div className= "flex space-x-2 sm:flex-col sm:space-x-0 sm:space-y-2 justify-self-end">
           {userBranch.name === "HEAD OFFICE" && (
             
               <Select value={selectedBranch} onValueChange={setSelectedBranch}>
@@ -394,7 +394,7 @@ const Inventory = () => {
           <input
             type="text"
             placeholder="Search material"
-            className=" border rounded p-2"
+            className="w-32 h-10 border rounded p-2"
             onChange={(e) => setFilterName(e.target.value)}
           />
           {/* <Select value={timePeriod} onValueChange={setTimePeriod}>

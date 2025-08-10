@@ -413,8 +413,8 @@ const Products = () => {
         </div>
 
         <div className="grid space-y-2">
-          
-          <div>
+
+          <div className="w-32 justify-self-end">
             {userBranch?.name === "HEAD OFFICE" && (
               <Select value={selectedBranch} onValueChange={setSelectedBranch}>
                 <SelectTrigger>
@@ -448,6 +448,7 @@ const Products = () => {
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-32 justify-self-end"
             />
           </div>
             <div
