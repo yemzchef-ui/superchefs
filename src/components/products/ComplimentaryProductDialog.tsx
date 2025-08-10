@@ -9,7 +9,7 @@ import { ComplimentaryProductForm } from "./ComplimentaryProductForm";
 import { useToast } from "@/hooks/use-toast";
 import { Product } from "@/types/products";
 import { useUserBranch } from "@/hooks/user-branch";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ComplimentaryProductDialogProps {
@@ -33,6 +33,17 @@ export const ComplimentaryProductDialog: React.FC<ComplimentaryProductDialogProp
   const { data: userBranch } = useUserBranch();
   const branchId = userBranch?.id;
 
+  // Fetch product_recipes for unit_cost
+  const { data: productRecipes } = useQuery({
+    queryKey: ["product_recipes"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("product_recipes").select("*");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+
   const handleSubmit = async (values: {
     product: string;
     quantity: string;
@@ -46,6 +57,14 @@ export const ComplimentaryProductDialog: React.FC<ComplimentaryProductDialogProp
 
       setIsLoading(true);
 
+      // Get unit_cost from product_recipes
+      const recipe = productRecipes?.find(
+        (r: any) => r.product_id === values.product
+      );
+      const unit_cost = recipe?.unit_cost ?? 0;
+      const quantity = Number(values.quantity);
+      const cost = quantity * unit_cost;
+
       // Insert into complimentary_products table
       const { error } = await supabase.from("complimentary_products").insert([
         {
@@ -54,6 +73,8 @@ export const ComplimentaryProductDialog: React.FC<ComplimentaryProductDialogProp
           quantity: Number(values.quantity),
           reason: values.reason,
           recipient: values.recipient,
+          unit_cost,
+          cost,
         },
       ]);
 

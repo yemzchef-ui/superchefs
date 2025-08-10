@@ -56,7 +56,7 @@ export default function ProductPerformance({
         label: "Sales Volume (Qty)",
         data: productSales.map((p) => p.quantity),
         backgroundColor: COLORS.slice(0, productSales.length),
-        borderWidth: 1,
+        borderWidth: 0.1,
       },
     ],
   };
@@ -64,7 +64,7 @@ export default function ProductPerformance({
   const options = {
     plugins: {
       legend: {
-        display: true,
+        display: false, // Display names of products if true
         position: "right" as const,
         labels: {
           boxWidth: 8,

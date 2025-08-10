@@ -47,6 +47,7 @@ type RecordItem = {
   branch: string;
   date: string;
   type: string;
+  cost: number;
 };
 
 export default function Records() {
@@ -129,8 +130,10 @@ export default function Records() {
         <CardHeader>
           <CardTitle>Records</CardTitle>
         </CardHeader>
+        
         <CardContent>
-          <div className="flex flex-wrap gap-4 mb-4">
+          
+          <div className="flex justify-between flex-wrap gap-4 mb-4">
             <Select
               onValueChange={setDateFilter}
               value={dateFilter}
@@ -181,7 +184,12 @@ export default function Records() {
                 ))}
               </SelectContent>
             </Select>
+            <h2 className=" font-bold text-2xl">₦{records?.reduce((acc, record) => acc + record.cost, 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}</h2>
           </div>
+          
 
           <div className="border rounded-lg overflow-hidden">
             <Table>
@@ -192,6 +200,7 @@ export default function Records() {
                   <TableHead>QTY</TableHead>
                   <TableHead>BRANCH</TableHead>
                   <TableHead>DATE</TableHead>
+                  <TableHead>AMOUNT</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -213,6 +222,7 @@ export default function Records() {
                       <TableCell>{record.quantity}</TableCell>
                       <TableCell>{record.branch}</TableCell>
                       <TableCell>{format(new Date(record.date), "MMM d, yyyy h:mm a")}</TableCell>
+                      <TableCell>{record.cost}</TableCell>
                     </TableRow>
                   ))
                 ) : (

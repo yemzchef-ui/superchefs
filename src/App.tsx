@@ -122,7 +122,7 @@ function App() {
                   path="sales"
                   element={
                     <RoleProtectedRoute
-                      allowedRoles={["sales_rep", "manager", "admin"]}
+                      allowedRoles={["sales_rep", "manager"]}
                     >
                       <Sales />
                     </RoleProtectedRoute>

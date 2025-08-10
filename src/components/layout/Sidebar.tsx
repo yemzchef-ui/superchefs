@@ -52,7 +52,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       icon: LayoutDashboard,
     },
     {
-      name: "Inventory",
+      name: "Materials",
       href: "/inventory",
       icon: Package,
     },
@@ -91,6 +91,12 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       adminOnly: true,
     },
     {
+      name: "Imprest Mngt.",
+      href: "/manage-imprest",
+      icon: HandshakeIcon,
+      managerOnly: true,
+    },
+    {
       name: "Damages",
       href: "/damages",
       icon: PackageMinusIcon,
@@ -122,6 +128,13 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       name: "Records",
       href: "/Records",
       icon: NotebookPen,
+      adminOnly: true,
+    },
+    {
+      name: "Records",
+      href: "/Records",
+      icon: NotebookPen,
+      managerOnly: true,
     },
     {
       name: "Recipes",

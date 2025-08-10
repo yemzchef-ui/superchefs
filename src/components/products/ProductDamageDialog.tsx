@@ -10,8 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Product } from "@/types/products";
 import { useUserBranch } from "@/hooks/user-branch";
-import { useQuery } from "@tanstack/react-query";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient} from "@tanstack/react-query";
 
 interface ExtendedProduct extends Product {
   product_damage?: { quantity: number }[];

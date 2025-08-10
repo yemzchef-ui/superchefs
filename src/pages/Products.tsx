@@ -254,25 +254,44 @@ const Products = () => {
     return name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  // function refetchTransfers() {
-  //   throw new Error("Function not implemented.");
-  // }
+  // Helper function to safely get a number property
+  const getNumber = (obj: any, key: string) =>
+    typeof obj[key] === "number" ? obj[key] : 0;
+
+  // Helper function to calculate current quantity
+  const calculateCurrentQuantity = (product: any) => {
+    return (
+      ("total_production_quantity" in product
+        ? getNumber(product, "total_production_quantity")
+        : 0) +
+      ("total_quantity" in product ? getNumber(product, "total_quantity") : 0) +
+      ("opening_stock" in product ? getNumber(product, "opening_stock") : 0) +
+      ("total_transfer_in_quantity" in product
+        ? getNumber(product, "total_transfer_in_quantity")
+        : 0) -
+      ("total_usage_quantity" in product
+        ? getNumber(product, "total_usage_quantity")
+        : 0) -
+      ("total_transfer_out_quantity" in product
+        ? getNumber(product, "total_transfer_out_quantity")
+        : 0) -
+      ("total_complimentary_quantity" in product
+        ? getNumber(product, "total_complimentary_quantity")
+        : 0) -
+      ("total_damage_quantity" in product
+        ? getNumber(product, "total_damage_quantity")
+        : 0) -
+      ("total_sales_quantity" in product
+        ? getNumber(product, "total_sales_quantity")
+        : 0)
+    );
+  };
 
   return (
-    <div className="space-y-6 p-2 bg-transparent rounded-lg shadow-md w-full mx-auto margin-100">
+    <div className="space-y-1 p-2 bg-transparent rounded-lg shadow-md w-full mx-auto margin-100">
+      
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold tracking-tight">Products</h2>
-
-        <div className="absolute top-16 z-40 bg-transparent">
-          <Input
-            type="text"
-            placeholder="Search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-32 bg-transparent h-8"
-          />
-        </div>
-
         <div className="absolute z-40 w-1/2 grid grid-cols-4 bg-transparent">
           <details className="group absolute">
             <summary className="cursor-pointer hover:text-green-600 p-2">
@@ -394,22 +413,24 @@ const Products = () => {
         </div>
 
         <div className="grid space-y-2">
-          {userBranch?.name === "HEAD OFFICE" && (
-            <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Select Branch" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Branches</SelectItem>
-                {branches?.map((branch) => (
-                  <SelectItem key={branch.id} value={branch.id}>
-                    {branch.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-          <Select value={timePeriod} onValueChange={setTimePeriod}>
+          
+          <div>
+            {userBranch?.name === "HEAD OFFICE" && (
+              <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Branch" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Branches</SelectItem>
+                  {branches?.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.id}>
+                      {branch.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            {/* <Select value={timePeriod} onValueChange={setTimePeriod}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Select Time Period" />
             </SelectTrigger>
@@ -419,7 +440,66 @@ const Products = () => {
               <SelectItem value="this_month">This Month</SelectItem>
               <SelectItem value="this_year">This Year</SelectItem>
             </SelectContent>
-          </Select>
+          </Select> */}
+          </div>
+          <div>
+            <Input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+            <div
+              className={`relative top-1 text-2xl font-bold ${
+                filteredProducts &&
+                Number(
+                  filteredProducts
+                    .reduce((acc, product) => {
+                      const productId = getProductId(product);
+                      const recipe = productRecipes?.find(
+                        (r) => r.product_id === productId
+                      );
+                      const price =
+                        typeof recipe?.selling_price === "number"
+                          ? recipe.selling_price
+                          : (product as any).selling_price || 0;
+
+                      const currentQuantity = calculateCurrentQuantity(product);
+
+                      return acc + price * currentQuantity;
+                    }, 0)
+                    .toFixed(2)
+                ) > 0
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
+              ₦
+              {filteredProducts
+                ? Number(
+                    filteredProducts
+                      .reduce((acc, product) => {
+                        const productId = getProductId(product);
+                        const recipe = productRecipes?.find(
+                          (r) => r.product_id === productId
+                        );
+                        const price =
+                          typeof recipe?.selling_price === "number"
+                            ? recipe.selling_price
+                            : (product as any).selling_price || 0;
+
+                        const currentQuantity = calculateCurrentQuantity(product);
+
+                        return acc + price * currentQuantity;
+                      }, 0)
+                      .toFixed(2)
+                  ).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : "0.00"}
+            </div>
         </div>
       </div>
 

@@ -236,13 +236,22 @@ const Inventory = () => {
     // Find the material to get its unit_price (cost)
     const material = allMaterials?.find((mat) => mat.id === materialId);
     const unit_cost = material?.unit_price ?? null;
+    if (unit_cost === null) {
+      toast({
+        title: "Error",
+        description: "Unit cost is not available for this material.",
+        variant: "destructive",
+      });
+      setIsSubmittingUsage((prev) => ({ ...prev, [materialId]: false }));
+      return;
+    }
     const cost = quantity * unit_cost;
 
     const { error } = await supabase.from("material_usage").insert([
       {
         material_id: materialId,
         quantity,
-        branch_id: userBranch.id,
+        branch_id: userBranch?.id,
         cost,
         // add other fields as needed, e.g. user_id, timestamp
       },
@@ -280,7 +289,8 @@ const Inventory = () => {
     return (
       <div className="text-center">
         <p className="text-red-500">
-          Error: Branch ID is not set. Please contact support.
+          YOUR INTERNET NETWORK IS BAD, SLOW OR UNAVAILABLE.
+          <br></br>Error: Branch ID is not set. Please contact support.
         </p>
       </div>
     );
@@ -289,16 +299,15 @@ const Inventory = () => {
   return (
     <div className="space-y-2 p-3 bg-transparent rounded-lg shadow-md w-full mx-auto margin-100">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Inventory</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Materials</h2>
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-start space-y-4 sm:space-y-0 sm:space-x-4">
         <div className="flex flex-1 items-start space-x-4">
           {userBranch.name === "HEAD OFFICE" && (
             <div className="items-center space-y-2">
-              <div className="flex items-center space-x-2">
+              <div className="grid items-center space-y-2">
                 <Button onClick={() => setIsAddDialogOpen(true)}>
-                  
                   Create Material
                 </Button>
                 <Button onClick={() => setIsUpdateDialogOpen(true)}>
@@ -306,8 +315,70 @@ const Inventory = () => {
                   Add Material
                 </Button>
               </div>
+            </div>
+          )}
+
+          {userBranch.name !== "HEAD OFFICE" && (
+            <div className="items-center space-y-2">
+              <div className="flex items-center space-x-2">
+                <Button onClick={() => setIsUpdateDialogOpen(true)}>
+                  <Plus className="h-4 w-4" />
+                  Add Material
+                </Button>
+              </div>
+            </div>
+          )}
+          <span
+            className="float-right text-base font-semibold"
+            style={{
+              color:
+                [
+                  ...(filteredMaterials ?? []),
+                  ...(indirectMaterials ?? []),
+                ].reduce((sum, material) => {
+                  const item = summaryByMaterialId[material.id] || {};
+                  const currentQuantity =
+                    (item.total_quantity ?? 0) +
+                    (item.opening_stock ?? 0) +
+                    (item.total_procurement_quantity ?? 0) +
+                    (item.total_transfer_in_quantity ?? 0) -
+                    (item.total_transfer_out_quantity ?? 0) -
+                    (item.total_usage ?? 0) -
+                    (item.total_damage_quantity ?? 0);
+                  return sum + (material.unit_price ?? 0) * (currentQuantity ?? 0);
+                }, 0) <= 0
+                  ? "red"
+                  : undefined,
+            }}
+          >
+            {" "}
+            {naira(
+              [
+                ...(filteredMaterials ?? []),
+                ...(indirectMaterials ?? []),
+              ].reduce((sum, material) => {
+                const item = summaryByMaterialId[material.id] || {};
+                const currentQuantity =
+                  (item.total_quantity ?? 0) +
+                  (item.opening_stock ?? 0) +
+                  (item.total_procurement_quantity ?? 0) +
+                  (item.total_transfer_in_quantity ?? 0) -
+                  (item.total_transfer_out_quantity ?? 0) -
+                  (item.total_usage ?? 0) -
+                  (item.total_damage_quantity ?? 0);
+                return sum + (material.unit_price ?? 0) * (currentQuantity ?? 0);
+              }, 0) ?? 0
+            )}
+          </span>
+        </div>
+
+        
+
+        <div className="flex flex-row space-x-2 sm:flex-col sm:space-x-0 sm:space-y-2 justify-self-end">
+          {userBranch.name === "HEAD OFFICE" && (
+            
               <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-                <SelectTrigger className="w-40 h-8 border rounded p-2">
+                <SelectTrigger className=" border rounded p-2">
                   <SelectValue placeholder="Select Branch" />
                 </SelectTrigger>
                 <SelectContent>
@@ -319,29 +390,14 @@ const Inventory = () => {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
           )}
-
-           {userBranch.name !== "HEAD OFFICE" && (
-            <div className="items-center space-y-2">
-              <div className="flex items-center space-x-2">
-                <Button onClick={() => setIsUpdateDialogOpen(true)}>
-                  <Plus className="h-4 w-4" />
-                  Add Material
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-row space-x-2 sm:flex-col sm:space-x-0 sm:space-y-2 justify-self-end">
           <input
             type="text"
             placeholder="Search material"
-            className="w-32 h-8 border rounded p-2"
+            className=" border rounded p-2"
             onChange={(e) => setFilterName(e.target.value)}
           />
-          <Select value={timePeriod} onValueChange={setTimePeriod}>
+          {/* <Select value={timePeriod} onValueChange={setTimePeriod}>
             <SelectTrigger className="w-32 h-8 border rounded p-2 ">
               <SelectValue placeholder="Select Time Period" />
             </SelectTrigger>
@@ -352,7 +408,7 @@ const Inventory = () => {
                 </SelectItem>
               ))}
             </SelectContent>
-          </Select>
+          </Select> */}
         </div>
       </div>
 
@@ -361,7 +417,8 @@ const Inventory = () => {
           {" "}
           Materials
           <span className="float-right text-base font-semibold">
-            <Sigma className="inline-block" />:{" "}
+            {/* <Sigma className="inline-block" />: */}
+            {" "}
             {naira(
               filteredMaterials?.reduce((sum, material) => {
                 const item = material.summary || {};
@@ -542,7 +599,7 @@ const Inventory = () => {
         <h3 className="text-xl font-bold px-4 py-2 bg-gray-100">
           Indirect Materials
           <span className="float-right text-base font-semibold">
-            <Sigma className="inline-block" />{" "}
+            {/* <Sigma className="inline-block" />{" "} */}
             {naira(
               indirectMaterials?.reduce((sum, material) => {
                 const item = summaryByMaterialId[material.id] || {};
