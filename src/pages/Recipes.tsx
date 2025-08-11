@@ -198,25 +198,7 @@ const Recipes = () => {
   const { toast } = useToast();
 
   // Fetch all products for lookup
-  const {
-    data: allProducts,
-    isLoading: isProductsLoading,
-    isError: isProductsError,
-  } = useQuery({
-    queryKey: ["all-products"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, name, unit, price");
-      if (error) throw error;
-      return data as {
-        id: string;
-        name: string;
-        unit: string;
-        price: number;
-      }[];
-    },
-  });
+  // Removed unused all-products query
 
   const {
     data: recipes,

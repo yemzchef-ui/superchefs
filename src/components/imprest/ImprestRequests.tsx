@@ -225,14 +225,16 @@ const ImprestRequests = () => {
             </DialogTrigger>
             <EditRequestDialog
               onOpenChange={setIsAddDialogOpen}
-              items={data?.requests
-                ?.filter((x) => selectedItems?.includes(x?.id))
-                ?.map((x) => ({
-                  id: x.id,
-                  name: x.name,
-                  quantity: String(x.quantity),
-                  unit: x.unit,
-                }))}
+              items={
+                data?.requests
+                  ?.filter((x) => selectedItems?.includes(x?.id))
+                  ?.map((x) => ({
+                    id: x.id,
+                    name: x.name,
+                    quantity: String(x.quantity),
+                    unit: x.unit,
+                  })) || []
+              }
               handleEditRequest={handleEditRequest}
               loading={loading}
             />
@@ -260,7 +262,7 @@ const ImprestRequests = () => {
                 }
                 onChange={() =>
                   handleSelectAll(
-                    data?.requests,
+                    data?.requests ?? [],
                     (req) => req.status !== "supplied"
                   )
                 }
@@ -273,6 +275,7 @@ const ImprestRequests = () => {
             <TableHead>Name</TableHead>
             <TableHead>Branch</TableHead>
             <TableHead>Quantity</TableHead>
+            <TableHead>Amount</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Date Created</TableHead>
             <TableHead>Date Updated</TableHead>
@@ -295,6 +298,7 @@ const ImprestRequests = () => {
                 <TableCell>
                   {request.quantity} {request?.unit}
                 </TableCell>
+                <TableCell>{request?.unit_price * request?.quantity}</TableCell>
                 <TableCell>
                   <Badge status={request.status}>{request.status}</Badge>
                 </TableCell>

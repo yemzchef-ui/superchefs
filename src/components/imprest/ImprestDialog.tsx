@@ -28,9 +28,8 @@ export const ImprestDialog = ({
 }: ImprestDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const {
-    data: { id: userBranchId },
-  } = useUserBranch();
+  const { data } = useUserBranch();
+  const userBranchId = data?.id;
   const { user } = useAuth();
   const handleSubmit = async (values: ImprestFormValues) => {
     try {
