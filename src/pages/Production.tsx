@@ -320,7 +320,20 @@ const Production = () => {
       return;
     }
 
-    const insufficient = checkSufficiency(recipe);
+    // Modified: skip sufficiency check for material named "water"
+    const filteredRecipe = {
+      ...recipe,
+      recipe_materials: recipe.recipe_materials.filter(
+        (item) =>
+          !(
+            item.material_id &&
+            item.material &&
+            item.material.name.toLowerCase() === "water"
+          )
+      ),
+    };
+
+    const insufficient = checkSufficiency(filteredRecipe as Recipe);
     if (insufficient.length > 0) {
       setInsufficientItems(insufficient);
       setShowInsufficientDialog(true);
