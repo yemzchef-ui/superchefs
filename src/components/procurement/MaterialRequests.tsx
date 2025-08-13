@@ -426,7 +426,7 @@ const MaterialRequests = () => {
                 checked={selectedItems?.length === data?.requests?.length}
                 onChange={() =>
                   handleSelectAll(
-                    data?.requests,
+                    data?.requests ?? [],
                     (req) => req.status === "pending"
                   )
                 }
@@ -437,7 +437,7 @@ const MaterialRequests = () => {
             <TableHead>Branch</TableHead>
             <TableHead>Current</TableHead>
             <TableHead>Avg/wk</TableHead>
-            <TableHead>Quantity</TableHead>
+            <TableHead>Request</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Date</TableHead>
           </TableRow>

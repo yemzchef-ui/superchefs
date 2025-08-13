@@ -280,11 +280,11 @@ const ProcurementOrders = () => {
 
             <div className="w-full flex gap-4 justify-start items-center">
               <p className="text-xl font-bold">
-              {`₦${data.orders
-                .reduce((orderAcc, order) => {
+              {`₦${data?.orders
+                ?.reduce((orderAcc, order) => {
                 return (
                   orderAcc +
-                  order.items.reduce((itemAcc, item) => {
+                  order.items.reduce((itemAcc: number, item: { material_request: { quantity: number; material: { unit_price: number; }; }; }) => {
                   return (
                     itemAcc +
                     item.material_request.quantity *
@@ -294,12 +294,12 @@ const ProcurementOrders = () => {
                 );
                 }, 0)
                 .toLocaleString("en-US", {
-                minimumSignificantDigits: 2,
+                minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
-                })}`}
+                }) || "₦0.00"}`}
               </p>
               <p>
-              {data.orders[0]?.items[0]?.material_request?.branch?.name ||
+              {data?.orders[0]?.items[0]?.material_request?.branch?.name ||
                 "N/A"}
               </p>
             </div>
@@ -307,7 +307,7 @@ const ProcurementOrders = () => {
             <div className="w-full flex gap-4 justify-start">
               <p>{new Date().toLocaleDateString()}</p>
               <p>
-              {data.orders[0]?.items[0]?.material_request?.branch?.manager ||
+              {data?.orders[0]?.items[0]?.material_request?.branch?.manager ||
                 "N/A"}
               </p>
             </div>
@@ -315,13 +315,13 @@ const ProcurementOrders = () => {
             <div className="w-full flex gap-4 justify-start">
               <h1>{new Date().toLocaleTimeString()}</h1>
               <p>
-              {data.orders[0]?.items[0]?.material_request?.branch?.phone ||
+              {data?.orders[0]?.items[0]?.material_request?.branch?.phone ||
                 "N/A"}
               </p>
             </div>
 
             <div className="w-full flex gap-4 justify-start">
-              {data.orders[0]?.items[0]?.material_request?.branch?.address ||
+              {data?.orders[0]?.items[0]?.material_request?.branch?.address ||
               "N/A"}
             </div>
             </div>

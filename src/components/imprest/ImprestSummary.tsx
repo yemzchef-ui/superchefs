@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import PaginationComponent from "@/components/pagination";
 
-const PAGE_LIMIT = 10;
+const PAGE_LIMIT = 1000;
 
 function getCurrentWeekRange() {
   const now = new Date();
