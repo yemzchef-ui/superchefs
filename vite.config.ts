@@ -97,9 +97,8 @@ export default defineConfig({
         ],
       },
 
-      // Enable during development if testing PWA behavior
       devOptions: {
-        enabled: false, // Set to true only if testing SW in dev
+        enabled: false, // true only if testing SW in dev
       },
     }),
   ],

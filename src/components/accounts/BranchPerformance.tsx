@@ -13,7 +13,7 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 interface BranchPerformanceProps {
   salesData: any[];
-  branches: { id: string; name: string }[];
+  branches: any[];
   complimentaryCosts?: any[];
   damageCosts?: any[];
   imprestCosts?: any[];
@@ -101,8 +101,16 @@ export default function BranchPerformance({
 
   // Profitable (75% and below) point up (positive, green), less profitable (>75%) point down (negative, red)
   const dataDiverge = sorted.map((b) =>
-    b.costToRevenueRatio <= 75 ? Math.abs(b.profit) : -Math.abs(b.profit)
-  );
+    b.costToRevenueRatio <= 75 
+  ? Math.abs(b.profit)
+  : -Math.abs(b.profit)
+);
+
+//   const dataDiverge = sorted.map((b) =>
+//   b.costToRevenueRatio <= 75
+//     ? 100 - b.costToRevenueRatio // green/up: higher % = lower bar
+//     : -(100 - b.costToRevenueRatio) // red/down: higher % = lower bar, negative
+// );
 
   const backgroundColors = sorted.map((b) =>
     b.costToRevenueRatio <= 75 ? "#10b981" : "#ef4444"
@@ -115,7 +123,7 @@ export default function BranchPerformance({
         label: "Branch Profit",
         data: dataDiverge,
         backgroundColor: backgroundColors,
-        borderRadius: 6,
+        borderRadius: 2,
         borderSkipped: false,
       },
     ],
@@ -161,9 +169,6 @@ export default function BranchPerformance({
 
   return (
     <div style={{ width: "100%" }}>
-      <div className="font-semibold mb-2">
-        Branch Profitability (Current Week)
-      </div>
       <Bar
         data={chartData}
         options={options}

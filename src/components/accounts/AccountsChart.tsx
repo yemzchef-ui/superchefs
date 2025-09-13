@@ -10,7 +10,8 @@ import {
 } from "recharts";
 
 interface AccountsChartProps {
-  data: { created_at: string; total_amount: number }[];
+  data: any[];
+  // { created_at: string; total_amount: number }[];
 }
 
 export function AccountsChart({ data }: AccountsChartProps) {

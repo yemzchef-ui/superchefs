@@ -17,9 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  LineChart,
   BarChart,
-  Line,
   Bar,
   XAxis,
   YAxis,
@@ -29,7 +27,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Label } from "@/components/ui/label";
-import { ShoppingBag, Package, Banknote, TrendingUp } from "lucide-react";
+import { ShoppingBag, Package, Banknote} from "lucide-react";
 
 // interface ProductInventoryItem {
 //   id: string;
@@ -189,12 +187,41 @@ const BranchAnalytics = () => {
     },
   });
 
+  // Define type for material summary items
+  interface MaterialSummaryItem {
+    material_name?: string;
+    materials?: { name?: string };
+    total_quantity?: number;
+    opening_stock?: number;
+    total_procurement_quantity?: number;
+    total_transfer_in_quantity?: number;
+    total_transfer_out_quantity?: number;
+    total_usage?: number;
+    total_damage_quantity?: number;
+    [key: string]: any;
+  }
+
+  // Define type for product summary items
+  interface ProductSummaryItem {
+    product_name?: string;
+    products?: { name?: string };
+    total_production_quantity?: number;
+    total_quantity?: number;
+    opening_stock?: number;
+    total_transfer_in_quantity?: number;
+    total_usage_quantity?: number;
+    total_transfer_out_quantity?: number;
+    total_complimentary_quantity?: number;
+    total_damage_quantity?: number;
+    total_sales_quantity?: number;
+    [key: string]: any;
+  }
+
   // Fetch material inventory summary view (admin or branch)
   const { data: materialSummary, isLoading: isLoadingMaterialSummary } =
-    useQuery({
+    useQuery<MaterialSummaryItem[]>({
       queryKey: ["admin-material-summary", selectedBranchId],
       queryFn: async () => {
-    
         let view = selectedBranchId
           ? "branch_material_today_view"
           : "admin_material_today_view";
@@ -208,11 +235,10 @@ const BranchAnalytics = () => {
     });
 
   // Fetch product inventory summary view (admin or branch)
-  const { data: productSummary, isLoading: isLoadingProductSummary } = useQuery(
+  const { data: productSummary, isLoading: isLoadingProductSummary } = useQuery<ProductSummaryItem[]>(
     {
       queryKey: ["admin-product-summary", selectedBranchId],
       queryFn: async () => {
-        
         let view = selectedBranchId
           ? "branch_product_today_view"
           : "admin_product_today_view";
@@ -226,14 +252,47 @@ const BranchAnalytics = () => {
     }
   );
 
+  // Helper function to filter sales by timeframe
+  const filterSalesByTimeframe = (
+    data: any[],
+    timeframe: "weekly" | "monthly" | "yearly"
+  ) => {
+    const now = new Date();
+    return data.filter((item) => {
+      const date = new Date(item.created_at);
+      if (timeframe === "weekly") {
+      // Start of week: Monday
+      const startOfWeek = new Date(now);
+      const day = now.getDay() === 0 ? 7 : now.getDay(); // Sunday as 7
+      startOfWeek.setDate(now.getDate() - (day - 1));
+      startOfWeek.setHours(0, 0, 0, 0);
+      // End of week: Sunday
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setHours(23, 59, 59, 999);
+      return date >= startOfWeek && date <= endOfWeek;
+      } else if (timeframe === "monthly") {
+      return (
+        date.getFullYear() === now.getFullYear() &&
+        date.getMonth() === now.getMonth()
+      );
+      } else {
+      return date.getFullYear() === now.getFullYear();
+      }
+    });
+  };
+
   // Helper function to group data by timeframe
   const groupByTimeframe = (
     data: any[],
     timeframe: "weekly" | "monthly" | "yearly"
   ) => {
+    // Filter data first
+    const filtered = filterSalesByTimeframe(data, timeframe);
+
     const result: Record<string, number> = {};
 
-    data.forEach((item) => {
+    filtered.forEach((item) => {
       const date = new Date(item.created_at);
       let key: string;
 
@@ -288,16 +347,19 @@ const BranchAnalytics = () => {
     isLoadingMaterials ||
     isLoadingAllProducts
   ) {
-    return <div className="flex justify-center items-center">Loading data...
-      <div className="animate-spin rounded-full text-green-500 h-8 w-8 border-t-2 border-b-2  border-green-500"></div>
-    </div>;
+    return (
+      <div className="flex justify-center items-center">
+        Loading data...
+        <div className="animate-spin rounded-full text-green-500 h-8 w-8 border-t-2 border-b-2  border-green-500"></div>
+      </div>
+    );
   }
 
   console.log("Inventory Data:", inventoryData);
   console.log("Product Inventory Data:", productInventoryData);
   console.log(
     "Materials Field:",
-    inventoryData.map((item) => item.materials)
+    inventoryData?.map((item) => item.materials)
   );
 
   // Helper to compute currentQuantity for materials
@@ -481,10 +543,9 @@ const BranchAnalytics = () => {
                       tickFormatter={(value) => value}
                       tickLine={true}
                       axisLine={true}
-                      label={null}
                     />
                     <YAxis />
-                    <Tooltip 
+                    <Tooltip
                       formatter={(value: any, name: any, props: any) => value}
                       labelFormatter={(index: any) => {
                         const item = (materialSummary || [])[index];
@@ -513,22 +574,22 @@ const BranchAnalytics = () => {
                       </th>
                     </tr>
                   </thead>
-                    <tbody>
+                  <tbody>
                     {(materialSummary || []).map((item, index) => (
                       <tr
-                      key={index}
-                      className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                        key={index}
+                        className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
                       >
-                      <td className="border border-gray-300 px-4 py-2">
-                        {item.material_name ||
-                        (item.materials?.name ?? "Unknown")}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {getMaterialCurrentQuantity(item)}
-                      </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {item.material_name ||
+                            (item.materials?.name ?? "Unknown")}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {getMaterialCurrentQuantity(item).toFixed(1)}
+                        </td>
                       </tr>
                     ))}
-                    </tbody>
+                  </tbody>
                 </table>
               </div>
             </CardContent>
@@ -560,7 +621,7 @@ const BranchAnalytics = () => {
                       tickFormatter={(value) => value}
                       tickLine={true}
                       axisLine={true}
-                      label={null}
+                      // label={null}
                     />
                     <YAxis />
                     <Tooltip
@@ -594,16 +655,16 @@ const BranchAnalytics = () => {
                   </thead>
                   <tbody>
                     {(productSummary || []).map((item, index) => (
-                      <tr 
-                      key={index}
-                      className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                      <tr
+                        key={index}
+                        className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
                       >
                         <td className="border border-gray-300 px-4 py-2">
                           {item.product_name ||
                             (item.products?.name ?? "Unknown")}
                         </td>
                         <td className="border border-gray-300 px-4 py-2">
-                          {getProductCurrentQuantity(item)}
+                          {getProductCurrentQuantity(item).toFixed(1)}
                         </td>
                       </tr>
                     ))}

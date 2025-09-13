@@ -57,8 +57,8 @@ export function DatePickerWithRange({
         numberOfMonths={2}
         fixedWeeks
         modifiersClassNames={{
-          selected: "bg-green-700 text-white", // Selected dates: gray background
-          today: "bg-red-600 text-white",   // Today: green background
+          selected: "bg-green-700 text-white ",
+          today: "border-2 border-red-400",
           // range_start: "rounded-l-md",
           // range_end: "rounded-r-md",
         }}

@@ -23,6 +23,7 @@
 
     // Modules
     "module": "ESNext",
+    "esModuleInterop": true,
     "moduleResolution": "bundler"
   }
 }

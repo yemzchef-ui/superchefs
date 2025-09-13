@@ -232,7 +232,7 @@ const ImprestOrders = () => {
       </div>
 
       <div ref={printRef}>
-        {data?.orders?.length > 0 && (
+        {(data?.orders?.length ?? 0) > 0 && (
           <div className="flex flex-col mb-4 gap-4 bg-green-100 p-4 rounded-md shadow-sm overflow-x-auto relative">
             {/* Logo positioned top right */}
             <img

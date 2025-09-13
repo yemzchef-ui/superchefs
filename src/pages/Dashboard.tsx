@@ -1,25 +1,24 @@
 import { useEffect, useState, useMemo } from "react";
 import { timeAgo } from "@/utils/timeUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import AttendanceButton from "@/components/attendance/AttendanceButton";
 
 import {
   CakeIcon,
   ShoppingCart,
   Package,
-  Store,
-  TrendingUp,
-  Users,
-  Timer,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { productionData } from "./Production";
+// import { productionData } from "./Production";
 import { useUserBranch } from "@/hooks/user-branch";
 import { useProductionContext } from "@/context/ProductionContext";
 import { AccountsMetricsCards } from "@/components/accounts/Profitability";
 import { Progress } from "@/components/ui/progress";
+
+
 
 function getCurrentWeekRange() {
   const now = new Date();
@@ -321,7 +320,15 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 p-3 bg-transparent rounded-lg shadow-md w-full mx-auto margin-100">
-      <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+      <div className="flex align-items-center justify-between gap-4">
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <AttendanceButton
+          supabase={supabase}
+          staffId={""}
+          locationId={""}
+        />
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <AccountsMetricsCards
           metrics={{
